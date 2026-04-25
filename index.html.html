@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VO2 Max Test — World Class</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0a0a0a;
+  --white: #f5f2ed;
+  --cream: #ede9e2;
+  --gold: #d45a5a;
+  --gold-light: #e07878;
+  --gray: #6b6b6b;
+  --gray-light: #2a2a2a;
+  --red: #c94c4c;
+  --green: #4caf7d;
+  --blue: #4c7fc9;
+  --amber: #c98a4c;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Geologica', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.5;
+}
+
+/* ── BG GLOW ── */
+.bg-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  transition: all 1.2s ease;
+}
+.glow-1 { width: 500px; height: 500px; background: rgba(212,90,90,0.07); top: -200px; right: -100px; }
+.glow-2 { width: 400px; height: 400px; background: rgba(212,90,90,0.04); bottom: -100px; left: -150px; }
+
+/* ── LAYOUT ── */
+.container {
+  position: relative;
+  z-index: 10;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 24px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 32px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid rgba(255,255,255,0.08);
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+}
+.header-tag {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--gray);
+  text-transform: uppercase;
+}
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  padding: 28px 0 0;
+  display: none;
+}
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--gray);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.progress-track {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 1px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+
+/* ── MAIN CONTENT ── */
+main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px 0; }
+
+/* ── SCREENS ── */
+.screen { display: none; animation: fadeUp 0.5s ease forwards; }
+.screen.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── INTRO SCREEN ── */
+.intro-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.intro-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(56px, 12vw, 88px);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+.intro-title span { color: var(--gold); }
+.intro-subtitle {
+  font-size: 13px;
+  color: var(--gray);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+.intro-desc {
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(245,242,237,0.65);
+  max-width: 480px;
+  margin-bottom: 48px;
+}
+.intro-desc strong { color: var(--white); font-weight: 500; }
+
+.intro-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+.stat-cell {
+  background: var(--black);
+  padding: 20px 16px;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: var(--gold);
+  display: block;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label { font-size: 11px; color: var(--gray); letter-spacing: 0.06em; }
+
+/* ── BUTTON ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  background: var(--gold);
+  color: var(--black);
+  font-family: 'Geologica', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-ghost {
+  background: transparent;
+  color: var(--white);
+  border: 0.5px solid rgba(255,255,255,0.2);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.05); transform: translateY(-1px); }
+.btn svg { width: 16px; height: 16px; }
+
+/* ── QUESTION SCREEN ── */
+.q-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.q-text {
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--white);
+  margin-bottom: 36px;
+  max-width: 520px;
+}
+.options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 0.5px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 15px;
+  color: rgba(245,242,237,0.75);
+  text-align: left;
+  width: 100%;
+  font-family: 'Geologica', sans-serif;
+  font-weight: 300;
+}
+.opt:hover { border-color: rgba(212,90,90,0.4); background: rgba(212,90,90,0.05); color: var(--white); }
+.opt.selected { border-color: var(--gold); background: rgba(212,90,90,0.1); color: var(--white); }
+.opt.selected .opt-letter { background: var(--gold); color: var(--black); }
+
+.opt-letter {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 0.5px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  color: var(--gray);
+}
+
+.q-nav { display: flex; align-items: center; gap: 16px; }
+.q-skip { font-size: 12px; color: var(--gray); background: none; border: none; cursor: pointer; font-family: 'Geologica', sans-serif; }
+.q-skip:hover { color: var(--white); }
+
+/* ── RESULT SCREEN ── */
+.result-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.result-score-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.result-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(72px, 16vw, 120px);
+  line-height: 0.9;
+  color: var(--white);
+}
+.result-unit { font-size: 18px; color: var(--gray); }
+.result-tier-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.result-desc {
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(245,242,237,0.6);
+  max-width: 500px;
+  margin-bottom: 32px;
+}
+
+.result-scale {
+  margin-bottom: 36px;
+}
+.scale-title { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray); margin-bottom: 12px; }
+.scale-track {
+  display: flex;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+.scale-seg { flex: 1; border-radius: 2px; }
+.scale-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--gray); letter-spacing: 0.04em; }
+
+.result-cta-box {
+  background: rgba(212,90,90,0.07);
+  border: 0.5px solid rgba(212,90,90,0.2);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+.result-cta-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.result-cta-text { font-size: 14px; line-height: 1.7; color: rgba(245,242,237,0.7); }
+.result-cta-text strong { color: var(--white); font-weight: 500; }
+
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 24px 0 32px;
+  border-top: 0.5px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--gray);
+  letter-spacing: 0.06em;
+}
+
+/* ── DECORATIVE LINE ── */
+.deco-line {
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+  margin: 20px 0 28px;
+}
+
+@media (max-width: 480px) {
+  .intro-stats { grid-template-columns: repeat(3, 1fr); }
+  .stat-cell { padding: 14px 8px; }
+  .stat-num { font-size: 24px; }
+  .result-actions { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-glow glow-1"></div>
+<div class="bg-glow glow-2"></div>
+
+<div class="container">
+  <header>
+    <div class="logo">World Class</div>
+    <div class="header-tag">Longevity · Test</div>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-meta">
+      <span id="progressLabel">Вопрос 1 из 5</span>
+      <span id="progressPct">20%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- INTRO -->
+    <div id="screen-intro" class="screen active">
+      <div class="intro-eyebrow">Longevity · Тест</div>
+      <div class="intro-title">VO2<br><span>Max</span></div>
+      <div class="intro-subtitle">Тест кардиофитнеса</div>
+      <div class="deco-line"></div>
+      <p class="intro-desc">
+        <strong>VO2 max</strong> — объём кислорода, который твой организм способен потребить за минуту. Учёные называют его сильнейшим предиктором продолжительности жизни — сильнее холестерина, давления и индекса массы тела.
+        <br><br>
+        Ответь на 5 вопросов и узнай, на каком уровне ты находишься прямо сейчас.
+      </p>
+
+      <div class="intro-stats">
+        <div class="stat-cell">
+          <span class="stat-num">5</span>
+          <div class="stat-label">вопросов</div>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-num">2'</span>
+          <div class="stat-label">минуты</div>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-num">4</span>
+          <div class="stat-label">уровня</div>
+        </div>
+      </div>
+
+      <button class="btn" onclick="startQuiz()">
+        Начать тест
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </button>
+    </div>
+
+    <!-- QUESTION -->
+    <div id="screen-q" class="screen">
+      <div class="q-eyebrow" id="qEyebrow">Вопрос 1 из 5</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="opts"></div>
+      <div class="q-nav">
+        <button class="btn" id="nextBtn" onclick="nextQ()" disabled style="opacity:0.4;pointer-events:none">
+          Далее
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="screen-result" class="screen">
+      <div class="result-eyebrow">Твой результат</div>
+      <div class="result-score-wrap">
+        <div class="result-num" id="resNum">—</div>
+        <div class="result-unit">мл/кг/мин</div>
+      </div>
+      <div class="result-tier-badge" id="resTier"></div>
+      <div class="deco-line"></div>
+      <p class="result-desc" id="resDesc"></p>
+
+      <div class="result-scale">
+        <div class="scale-title">Твоя позиция на шкале</div>
+        <div class="scale-track" id="scaleTrack"></div>
+        <div class="scale-labels">
+          <span>Низкий</span><span>Средний</span><span>Хороший</span><span>Отличный</span><span>Элитный</span>
+        </div>
+      </div>
+
+      <div class="result-cta-box">
+        <div class="result-cta-label">Что дальше</div>
+        <div class="result-cta-text" id="resCta"></div>
+      </div>
+
+      <div class="result-actions">
+        <a href="https://t.me/WorldClass_Tashkent" target="_blank" class="btn">
+          Стать членом клуба
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
+        <button class="btn btn-ghost" onclick="restart()">Пройти ещё раз</button>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <span>© 2026 World Class</span>
+    <span>Longevity Programme</span>
+  </footer>
+</div>
+
+<script>
+const questions = [
+  {
+    text: "Как ты ощущаешь себя в конце 10 минут быстрой ходьбы или лёгкого бега?",
+    opts: [
+      { t: "Совсем не устаю — могу продолжать долго", s: 4 },
+      { t: "Слегка запыхался, но комфортно", s: 3 },
+      { t: "Заметно устаю, дыхание учащается", s: 2 },
+      { t: "Очень тяжело, нужна остановка", s: 1 }
+    ]
+  },
+  {
+    text: "Как часто ты занимаешься кардио: бег, велосипед, плавание, интенсивные тренировки?",
+    opts: [
+      { t: "4–5 раз в неделю и чаще", s: 4 },
+      { t: "2–3 раза в неделю", s: 3 },
+      { t: "1 раз в неделю или нерегулярно", s: 2 },
+      { t: "Практически не занимаюсь", s: 1 }
+    ]
+  },
+  {
+    text: "Можешь поддерживать разговор во время кардио-тренировки?",
+    opts: [
+      { t: "Легко — даже пою", s: 4 },
+      { t: "Да, короткими фразами", s: 3 },
+      { t: "Тяжело, предпочитаю молчать", s: 2 },
+      { t: "Нет, совсем не хватает дыхания", s: 1 }
+    ]
+  },
+  {
+    text: "Как быстро восстанавливается твой пульс после интенсивной нагрузки?",
+    opts: [
+      { t: "За 1–2 минуты", s: 4 },
+      { t: "За 3–5 минут", s: 3 },
+      { t: "За 5–10 минут", s: 2 },
+      { t: "Больше 10 минут или долго чувствую усталость", s: 1 }
+    ]
+  },
+  {
+    text: "Как ты оцениваешь свой общий уровень физической подготовки?",
+    opts: [
+      { t: "Отличная — я в числе лучших", s: 4 },
+      { t: "Хорошая — выше среднего", s: 3 },
+      { t: "Средняя", s: 2 },
+      { t: "Ниже среднего, хочу улучшить", s: 1 }
+    ]
+  }
+];
+
+const letters = ['А', 'Б', 'В', 'Г'];
+
+const results = [
+  {
+    min: 0, max: 8,
+    num: "~29", tier: "Точка роста",
+    bg: "rgba(201,76,76,0.15)", color: "#e07070", border: "rgba(201,76,76,0.3)",
+    segs: 1,
+    desc: "Сейчас твой уровень кардиофитнеса ниже среднего — и это отличная отправная точка. Наука показывает: именно у людей с низким VO2 max прогресс от тренировок самый быстрый и заметный. Всего 8 недель регулярных тренировок дают ощутимый результат.",
+    cta: "Начни с <strong>Stretching</strong> и <strong>Yoga</strong> — они мягко восстановят подвижность и подготовят тело к нагрузке. Параллельно подключи <strong>персональные тренировки с тренером в зале</strong>: он выстроит безопасный старт именно под тебя. После тренировок — обязательное восстановление в <strong>сауне или хаммаме</strong>."
+  },
+  {
+    min: 9, max: 12,
+    num: "~38", tier: "Средний уровень",
+    bg: "rgba(201,138,76,0.15)", color: "#d4956a", border: "rgba(201,138,76,0.3)",
+    segs: 2,
+    desc: "Твой уровень соответствует среднему показателю для взрослых. Хорошая новость: VO2 max отлично поддаётся тренировке. Даже 3 месяца регулярных кардио-нагрузок дают рост на 15–20% — это ощутимый скачок в самочувствии и энергии.",
+    cta: "Твой следующий шаг — добавить <strong>Cycle</strong> или <strong>HIIT</strong> для роста кардиовыносливости. <strong>Аквааэробика</strong> идеально подойдёт для щадящей нагрузки на суставы. <strong>Make Body</strong> поможет укрепить мышечный корсет. Восстановление в <strong>сауне после тренировок</strong> ускорит прогресс."
+  },
+  {
+    min: 13, max: 16,
+    num: "~47", tier: "Хороший уровень",
+    bg: "rgba(76,127,201,0.15)", color: "#6fa0d4", border: "rgba(76,127,201,0.3)",
+    segs: 3,
+    desc: "Ты в хорошей кардиоформе — выше среднего для своего возраста. VO2 max в диапазоне 45–54 связан с низким риском сердечно-сосудистых заболеваний и убедительным longevity-прогнозом по данным текущих исследований.",
+    cta: "<strong>HIIT и Functional</strong> — твои главные инструменты для выхода на следующий уровень. Добавь <strong>персональные тренировки по плаванию</strong>: бассейн отлично развивает кардио без ударной нагрузки. <strong>Stretching</strong> между тренировками и <strong>хаммам</strong> помогут поддерживать высокий темп без перегрузки."
+  },
+  {
+    min: 17, max: 20,
+    num: "~56", tier: "Элитный уровень",
+    bg: "rgba(76,175,125,0.15)", color: "#5aba8a", border: "rgba(76,175,125,0.3)",
+    segs: 5,
+    desc: "Твои показатели соответствуют уровню профессиональных спортсменов и людей с исключительной кардиореспираторной подготовкой. VO2 max выше 55 — это топ 5% среди взрослых. Это результат серьёзной работы — и его стоит поддерживать.",
+    cta: "На твоём уровне важна вариативность: чередуй <strong>Functional и HIIT</strong> с <strong>Cycle</strong> для пиковых кардио-сессий. <strong>Персональный тренер в зале</strong> поможет удержать прогресс и избежать плато. Протокол восстановления в <strong>сауне и хаммаме</strong> — обязательная часть элитной подготовки."
+  }
+];
+
+const scaleColors = ['#c94c4c', '#c98a4c', '#4c7fc9', '#4c7fc9', '#4caf7d'];
+
+let cur = 0, total = 0, sel = null;
+
+function startQuiz() {
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('progressWrap').style.display = 'block';
+  showQ();
+  document.getElementById('screen-q').classList.add('active');
+}
+
+function showQ() {
+  const q = questions[cur];
+  const pct = Math.round(((cur + 1) / questions.length) * 100);
+  document.getElementById('qEyebrow').textContent = `Вопрос ${cur + 1} из ${questions.length}`;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('progressLabel').textContent = `Вопрос ${cur + 1} из ${questions.length}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  sel = null;
+  setNextEnabled(false);
+
+  const c = document.getElementById('opts');
+  c.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${o.t}`;
+    btn.onclick = () => {
+      document.querySelectorAll('.opt').forEach(x => x.classList.remove('selected'));
+      btn.classList.add('selected');
+      sel = o.s;
+      setNextEnabled(true);
+    };
+    c.appendChild(btn);
+  });
+}
+
+function setNextEnabled(on) {
+  const btn = document.getElementById('nextBtn');
+  btn.disabled = !on;
+  btn.style.opacity = on ? '1' : '0.4';
+  btn.style.pointerEvents = on ? 'auto' : 'none';
+}
+
+function nextQ() {
+  if (sel === null) return;
+  total += sel;
+  cur++;
+  if (cur < questions.length) {
+    document.getElementById('screen-q').classList.remove('active');
+    setTimeout(() => {
+      showQ();
+      document.getElementById('screen-q').classList.add('active');
+    }, 50);
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('screen-q').classList.remove('active');
+  document.getElementById('progressWrap').style.display = 'none';
+
+  const r = results.find(x => total >= x.min && total <= x.max) || results[0];
+
+  document.getElementById('resNum').textContent = r.num;
+  const tierEl = document.getElementById('resTier');
+  tierEl.textContent = r.tier;
+  tierEl.style.background = r.bg;
+  tierEl.style.color = r.color;
+  tierEl.style.border = '0.5px solid ' + r.border;
+
+  document.getElementById('resDesc').textContent = r.desc;
+  document.getElementById('resCta').innerHTML = r.cta;
+
+  const track = document.getElementById('scaleTrack');
+  track.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'scale-seg';
+    seg.style.background = i < r.segs ? scaleColors[i] : 'rgba(255,255,255,0.07)';
+    seg.style.transition = `background 0.3s ease ${i * 0.1}s`;
+    track.appendChild(seg);
+  }
+
+  document.getElementById('screen-result').classList.add('active');
+}
+
+function restart() {
+  cur = 0; total = 0; sel = null;
+  document.getElementById('screen-result').classList.remove('active');
+  document.getElementById('screen-intro').classList.add('active');
+}
+</script>
+</body>
+</html>
